@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">DailyReminder</string>
+    <string name="validate">Validate today</string>
+    <string name="validate_popup">Are you sure you want to validate today?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="validate_already_done">You already validated today</string>
 </resources>
