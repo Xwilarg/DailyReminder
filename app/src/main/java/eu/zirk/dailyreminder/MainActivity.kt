@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,8 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    lateinit var calendarView: CalendarView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,7 +34,7 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
 
-            val calendarView = v.findViewById<CalendarView>(R.id.calendarView)
+            calendarView = v.findViewById<CalendarView>(R.id.calendarView)
             val today = Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
                 // Called only when a new container is needed.
@@ -40,11 +43,12 @@ class MainActivity : AppCompatActivity() {
                 // Called every time we need to reuse a container.
                 override fun bind(container: DayViewContainer, data: CalendarDay) {
                     container.textView.text = data.date.dayOfMonth.toString()
-                    if (data.position == DayPosition.MonthDate) {
 
-                        val preferences = applicationContext.getSharedPreferences("progress", Context.MODE_PRIVATE)
-                        val dates = preferences.getStringSet("productMain", emptySet())
-                        val isOk = dates!!.contains(data.date.toString())
+                    val preferences = applicationContext.getSharedPreferences("progress", Context.MODE_PRIVATE)
+                    val dates = preferences.getStringSet("productMain", emptySet())
+                    val isOk = dates!!.contains(data.date.toString())
+
+                    if (data.position == DayPosition.MonthDate) {
 
                         if (today.year == data.date.year && today.monthValue == data.date.monthValue && today.dayOfMonth == data.date.dayOfMonth) {
                             container.textView.setBackgroundColor(if (isOk) {
@@ -55,13 +59,17 @@ class MainActivity : AppCompatActivity() {
                             container.textView.setTextColor(Color.WHITE)
                         } else {
                             container.textView.setTextColor(if (isOk) {
-                                applicationContext.getColor(R.color.day_validation)
+                                Color.GREEN
                             } else {
                                 Color.BLACK
                             })
                         }
                     } else {
-                        container.textView.setTextColor(Color.GRAY)
+                        container.textView.setTextColor(if (isOk) {
+                            applicationContext.getColor(R.color.day_validation)
+                        } else {
+                            Color.GRAY
+                        })
                     }
                 }
             }
@@ -100,7 +108,6 @@ class MainActivity : AppCompatActivity() {
                     putStringSet("productMain", tmp)
                     apply()
                 }
-                val calendarView = v.findViewById<CalendarView>(R.id.calendarView)
                 calendarView.notifyDateChanged(LocalDate.now())
             })
             .setNegativeButton(R.string.no, null)
